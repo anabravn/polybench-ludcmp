@@ -21,10 +21,10 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(A,N+1,N+1,n+1,n+1),
-		 DATA_TYPE POLYBENCH_1D(b,N+1,n+1),
-		 DATA_TYPE POLYBENCH_1D(x,N+1,n+1),
-		 DATA_TYPE POLYBENCH_1D(y,N+1,n+1))
+		 DATA_TYPE POLYBENCH_2D(A,n+1,n+1,n+1,n+1),
+		 DATA_TYPE POLYBENCH_1D(b,n+1,n+1),
+		 DATA_TYPE POLYBENCH_1D(x,n+1,n+1),
+		 DATA_TYPE POLYBENCH_1D(y,n+1,n+1))
 {
   int i, j;
 
@@ -44,7 +44,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(x,N+1,n+1))
+		 DATA_TYPE POLYBENCH_1D(x,n+1,n+1))
 
 {
   int i;
@@ -60,10 +60,10 @@ void print_array(int n,
    including the call and return. */
 static
 void kernel_ludcmp(int n,
-		   DATA_TYPE POLYBENCH_2D(A,N+1,N+1,n+1,n+1),
-		   DATA_TYPE POLYBENCH_1D(b,N+1,n+1),
-		   DATA_TYPE POLYBENCH_1D(x,N+1,n+1),
-		   DATA_TYPE POLYBENCH_1D(y,N+1,n+1))
+		   DATA_TYPE POLYBENCH_2D(A,n+1,n+1,n+1,n+1),
+		   DATA_TYPE POLYBENCH_1D(b,n+1,n+1),
+		   DATA_TYPE POLYBENCH_1D(x,n+1,n+1),
+		   DATA_TYPE POLYBENCH_1D(y,n+1,n+1))
 {
   int i, j, k;
 
@@ -109,16 +109,32 @@ void kernel_ludcmp(int n,
 }
 
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
-  /* Retrieve problem size. */
-  int n = N;
+  int n;
+
+  // Recebe tamanho dos dados como argumento
+  if (argc < 3 || strcmp(argv[1], "-d")) {
+    fprintf(stderr, "Usagem: ./ludcmp -d [SMALL|MEDIUM|LARGE]\n");
+    return 1;
+  } else {
+    if (!strcmp(argv[2], "SMALL"))
+      n = SMALL_DATASET;
+    else if (!strcmp(argv[2], "MEDIUM"))
+      n = MEDIUM_DATASET;
+    else if(!strcmp(argv[2], "LARGE"))
+      n = LARGE_DATASET;
+    else {
+      fprintf(stderr, "Tamanho inválido\n");
+      return 1;
+    }
+  }
 
   /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N+1, N+1, n+1, n+1);
-  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, N+1, n+1);
-  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N+1, n+1);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, N+1, n+1);
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, n+1, n+1, n+1, n+1);
+  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, n+1, n+1);
+  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, n+1, n+1);
+  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, n+1, n+1);
 
 
   /* Initialize array(s). */
