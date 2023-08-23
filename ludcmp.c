@@ -69,6 +69,7 @@ void kernel_ludcmp(int n,
 
   DATA_TYPE w;
 
+// Lu decomposition dolittle
 #pragma scop
    // Esse bloco calcula as matrizes L e U
   b[0] = 1.0;
