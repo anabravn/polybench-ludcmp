@@ -77,13 +77,13 @@ void kernel_ludcmp(int n,
       w = A[j][i];
       for (k = 0; k < i; k++)
         w = w - A[j][k] * A[k][i];
-      A[j][i] = w / A[i][i];
+      A[j][i] = w / A[i][i]; // Armazena o valor calculado em A[j][i] (matriz L)
     }
     for (j = i + 1; j <= n; j++) {
       w = A[i + 1][j];
       for (k = 0; k <= i; k++)
        w = w - A[i + 1][k] * A[k][j];
-      A[i + 1][j] = w;
+      A[i + 1][j] = w; // Armazena o valor calculado em A[i+1][j] (matriz U)
     }
   }
   y[0] = b[0];
