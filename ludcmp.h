@@ -9,9 +9,9 @@
 # define LUDCMP_H
 
 /* Define the possible dataset sizes. */
-#  define SMALL_DATASET 4096
+#  define SMALL_DATASET 4608
 #  define MEDIUM_DATASET 5120 
-#  define LARGE_DATASET 6144
+#  define LARGE_DATASET 5632
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double
