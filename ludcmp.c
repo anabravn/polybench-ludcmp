@@ -24,10 +24,10 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
-		 DATA_TYPE POLYBENCH_1D(b,N,n),
-		 DATA_TYPE POLYBENCH_1D(x,N,n),
-		 DATA_TYPE POLYBENCH_1D(y,N,n))
+		 DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
+		 DATA_TYPE POLYBENCH_1D(b,n,n),
+		 DATA_TYPE POLYBENCH_1D(x,n,n),
+		 DATA_TYPE POLYBENCH_1D(y,n,n))
 {
   int i, j;
   DATA_TYPE fn = (DATA_TYPE)n;
@@ -52,7 +52,7 @@ void init_array (int n,
   /* Make the matrix positive semi-definite. */
   /* not necessary for LU, but using same code as cholesky */
   int r,s,t;
-  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, n, n, n, n);
   for (r = 0; r < n; ++r)
     for (s = 0; s < n; ++s)
       (POLYBENCH_ARRAY(B))[r][s] = 0;
@@ -72,7 +72,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(x,N,n))
+		 DATA_TYPE POLYBENCH_1D(x,n,n))
 
 {
   int i;
@@ -92,10 +92,10 @@ void print_array(int n,
    including the call and return. */
 static
 void kernel_ludcmp(int n,
-		   DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
-		   DATA_TYPE POLYBENCH_1D(b,N,n),
-		   DATA_TYPE POLYBENCH_1D(x,N,n),
-		   DATA_TYPE POLYBENCH_1D(y,N,n))
+		   DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
+		   DATA_TYPE POLYBENCH_1D(b,n,n),
+		   DATA_TYPE POLYBENCH_1D(x,n,n),
+		   DATA_TYPE POLYBENCH_1D(y,n,n))
 {
   int i, j, k;
 
@@ -139,14 +139,34 @@ void kernel_ludcmp(int n,
 
 int main(int argc, char** argv)
 {
-  /* Retrieve problem size. */
-  int n = N;
+  int n = 0; 
+
+  if (argc < 3) {
+      fprintf(stderr, "Usagem: ./ludcmp -d [SIZE]\n");
+      return 1;
+
+  } else if (!strcmp(argv[1], "-d")) {
+      int i;
+
+      for(i = 0; i < 3; i++) {
+         if(!strcmp(argv[2], dataset_labels[i]))
+             break;
+      }
+
+      if (i >= 3) {
+            fprintf(stderr, "Erro: Tamanho inválido\n");
+            return 2;
+      }
+
+      n = dataset_sizes[1];
+  }
+
 
   /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
-  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N, n);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, N, n);
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, n, n, n, n);
+  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, n, n);
+  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, n, n);
+  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, n, n);
 
 
   /* Initialize array(s). */

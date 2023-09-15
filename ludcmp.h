@@ -10,35 +10,22 @@
 #ifndef _LUDCMP_H
 # define _LUDCMP_H
 
-/* Default to LARGE_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
-#  define LARGE_DATASET
-# endif
-
-# if !defined(N)
 /* Define sample dataset sizes. */
-#  ifdef MINI_DATASET
-#   define N 40
-#  endif
 
-#  ifdef SMALL_DATASET
-#   define N 120
-#  endif
+const char *dataset_labels[] = {
+    "MINI",
+    "SMALL",
+    "MEDIUM",
+    "LARGE"
+};
 
-#  ifdef MEDIUM_DATASET
-#   define N 400
-#  endif
+const int dataset_sizes[] = {
+    10,
+    120,
+    2000,
+    4000
+};
 
-#  ifdef LARGE_DATASET
-#   define N 2000
-#  endif
-
-#  ifdef EXTRALARGE_DATASET
-#   define N 4000
-#  endif
-
-
-#endif /* !(N) */
 
 # define _PB_N POLYBENCH_LOOP_BOUND(N,n)
 
