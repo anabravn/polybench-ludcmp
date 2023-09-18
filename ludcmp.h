@@ -20,42 +20,30 @@ const char *dataset_labels[] = {
 };
 
 const int dataset_sizes[] = {
-    10,
-    120,
+    20,
+    100,
     2000,
     4000
 };
 
 
-# define _PB_N POLYBENCH_LOOP_BOUND(N,n)
+/* Funções */
+
+void print_array(int n,
+         DATA_TYPE POLYBENCH_1D(b,n,n));
+	
+void init_array(int n,
+		 DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
+         DATA_TYPE POLYBENCH_1D(b,n,n),
+		 DATA_TYPE POLYBENCH_1D(x,n,n),
+		 DATA_TYPE POLYBENCH_1D(y,n,n));
+
+void kernel_ludcmp(int n,
+		   DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
+		   DATA_TYPE POLYBENCH_1D(b,n,n),
+		   DATA_TYPE POLYBENCH_1D(x,n,n),
+		   DATA_TYPE POLYBENCH_1D(y,n,n));
 
 
-/* Default data type */
-# if !defined(DATA_TYPE_IS_INT) && !defined(DATA_TYPE_IS_FLOAT) && !defined(DATA_TYPE_IS_DOUBLE)
-#  define DATA_TYPE_IS_DOUBLE
-# endif
-
-#ifdef DATA_TYPE_IS_INT
-#  define DATA_TYPE int
-#  define DATA_PRINTF_MODIFIER "%d "
-#endif
-
-#ifdef DATA_TYPE_IS_FLOAT
-#  define DATA_TYPE float
-#  define DATA_PRINTF_MODIFIER "%0.2f "
-#  define SCALAR_VAL(x) x##f
-#  define SQRT_FUN(x) sqrtf(x)
-#  define EXP_FUN(x) expf(x)
-#  define POW_FUN(x,y) powf(x,y)
-# endif
-
-#ifdef DATA_TYPE_IS_DOUBLE
-#  define DATA_TYPE double
-#  define DATA_PRINTF_MODIFIER "%0.2lf "
-#  define SCALAR_VAL(x) x
-#  define SQRT_FUN(x) sqrt(x)
-#  define EXP_FUN(x) exp(x)
-#  define POW_FUN(x,y) pow(x,y)
-# endif
 
 #endif /* !_LUDCMP_H */
