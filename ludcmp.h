@@ -20,7 +20,7 @@ const char *dataset_labels[] = {
 };
 
 const int dataset_sizes[] = {
-    20,
+    3,
     100,
     2000,
     4000
@@ -29,20 +29,14 @@ const int dataset_sizes[] = {
 
 /* Funções */
 
-void print_array(int n,
-         DATA_TYPE POLYBENCH_1D(b,n,n));
+void print_array(int n, float *x);
+void print_matrix(int n, float **a);
 	
 void init_array(int n,
-		 DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
-         DATA_TYPE POLYBENCH_1D(b,n,n),
-		 DATA_TYPE POLYBENCH_1D(x,n,n),
-		 DATA_TYPE POLYBENCH_1D(y,n,n));
-
+            float **A, float *b, float *x, float *y);
+		 
 void kernel_ludcmp(int n,
-		   DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
-		   DATA_TYPE POLYBENCH_1D(b,n,n),
-		   DATA_TYPE POLYBENCH_1D(x,n,n),
-		   DATA_TYPE POLYBENCH_1D(y,n,n));
+            float **A, float *b, float *x, float *y);
 
 
 

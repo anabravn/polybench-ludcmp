@@ -1,12 +1,5 @@
-sources = ludcmp.c polybench.c 
- 
-ludcmp: $(sources)
-	gcc -O3 -I. main.c $(sources) -DPOLYBENCH_TIME \
-		-DPOLYBENCH_DUMP_ARRAYS -o ludcmp
+ludcmp: main.c ludcmp.c polybench.c
+	gcc -g -I. main.c ludcmp.c polybench.c -DPOLYBENCH_TIME -o ludcmp
 
-check: $(sources) 
-	gcc -O3 -I. test.c $(sources) -o check -lcheck
 
-test: check
-	./check
 

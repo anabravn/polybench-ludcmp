@@ -18,112 +18,86 @@
 
 /* Array initialization. */
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
-		 DATA_TYPE POLYBENCH_1D(b,n,n),
-		 DATA_TYPE POLYBENCH_1D(x,n,n),
-		 DATA_TYPE POLYBENCH_1D(y,n,n))
+         float **a, float *b, float *x, float *y)
 {
   int i, j;
-  DATA_TYPE fn = (DATA_TYPE)n;
 
   for (i = 0; i < n; i++)
     {
       x[i] = 0;
       y[i] = 0;
-      b[i] = (i+1)/fn/2.0 + 4;
+      b[i] = (i+1)/n/2.0 + 4;
     }
 
   for (i = 0; i < n; i++)
     {
-      for (j = 0; j <= i; j++)
-	A[i][j] = (DATA_TYPE)(-j % n) / n + 1;
-      for (j = i+1; j < n; j++) {
-	A[i][j] = 0;
-      }
-      A[i][i] = 1;
+      for (j = 0; j < n; j++)
+        a[i][j] = rand() % 100;
     }
-
-  /* Make the matrix positive semi-definite. */
-  /* not necessary for LU, but using same code as cholesky */
-  int r,s,t;
-  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, n, n, n, n);
-  for (r = 0; r < n; ++r)
-    for (s = 0; s < n; ++s)
-      (POLYBENCH_ARRAY(B))[r][s] = 0;
-  for (t = 0; t < n; ++t)
-    for (r = 0; r < n; ++r)
-      for (s = 0; s < n; ++s)
-	(POLYBENCH_ARRAY(B))[r][s] += A[r][t] * A[s][t];
-    for (r = 0; r < n; ++r)
-      for (s = 0; s < n; ++s)
-	A[r][s] = (POLYBENCH_ARRAY(B))[r][s];
-  POLYBENCH_FREE_ARRAY(B);
-
 }
 
 
-/* DCE code. Must scan the entire live-out data.
-   Can be used also to check the correctness of the output. */
-void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(x,n,n))
-
+void print_array(int n, float *x)
 {
   int i;
 
-  POLYBENCH_DUMP_START;
-  POLYBENCH_DUMP_BEGIN("x");
   for (i = 0; i < n; i++) {
-    if (i % 20 == 0) fprintf (POLYBENCH_DUMP_TARGET, "\n");
-    fprintf (POLYBENCH_DUMP_TARGET, DATA_PRINTF_MODIFIER, x[i]);
+    printf("%f ", x[i]);
   }
-  POLYBENCH_DUMP_END("x");
-  POLYBENCH_DUMP_FINISH;
+
+  printf("\n");
+}
+
+void print_matrix(int n, float **a)
+{
+  int i, j;
+
+  for (i = 0; i < n; i++) {
+    for(j = 0; j < n; j++) 
+        printf("%f ", a[i][j]);
+
+    printf("\n");
+  }
+
+  printf("\n");
 }
 
 
-/* Main computational kernel. The whole function will be timed,
-   including the call and return. */
+
 void kernel_ludcmp(int n,
-		   DATA_TYPE POLYBENCH_2D(A,n,n,n,n),
-		   DATA_TYPE POLYBENCH_1D(b,n,n),
-		   DATA_TYPE POLYBENCH_1D(x,n,n),
-		   DATA_TYPE POLYBENCH_1D(y,n,n))
+         float **a, float *b, float *x, float *y)
 {
   int i, j, k;
+  float w;
 
-  DATA_TYPE w;
-
-#pragma scop
-  for (i = 0; i < _PB_N; i++) {
+  for (i = 0; i < n; i++) {
     for (j = 0; j <i; j++) {
-       w = A[i][j];
+       w = a[i][j];
        for (k = 0; k < j; k++) {
-          w -= A[i][k] * A[k][j];
+          w -= a[i][k] * a[k][j];
        }
-        A[i][j] = w / A[j][j];
+        a[i][j] = w / a[j][j];
     }
-   for (j = i; j < _PB_N; j++) {
-       w = A[i][j];
+   for (j = i; j < n; j++) {
+       w = a[i][j];
        for (k = 0; k < i; k++) {
-          w -= A[i][k] * A[k][j];
+          w -= a[i][k] * a[k][j];
        }
-       A[i][j] = w;
+       a[i][j] = w;
     }
   }
 
-  for (i = 0; i < _PB_N; i++) {
+  for (i = 0; i < n; i++) {
      w = b[i];
      for (j = 0; j < i; j++)
-        w -= A[i][j] * y[j];
+        w -= a[i][j] * y[j];
      y[i] = w;
   }
 
-   for (i = _PB_N-1; i >=0; i--) {
+   for (i = n-1; i >=0; i--) {
      w = y[i];
-     for (j = i+1; j < _PB_N; j++)
-        w -= A[i][j] * x[j];
-     x[i] = w / A[i][i];
+     for (j = i+1; j < n; j++)
+        w -= a[i][j] * x[j];
+     x[i] = w / a[i][i];
   }
-#pragma endscop
-
 }

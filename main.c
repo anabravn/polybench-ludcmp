@@ -5,16 +5,15 @@
 #include "polybench.h"
 #include "ludcmp.h"
 
-
 int main(int argc, char** argv)
 {
   int n = 0; 
+  float **a, *b, *x, *y;
 
-  if (argc < 3) {
-      fprintf(stderr, "Usagem: ./ludcmp -d [SIZE]\n");
-      return 1;
+  // RANDOM SEED
+  srand(0);
 
-  } else if (!strcmp(argv[1], "-d")) {
+  if (argc >= 3 && !strcmp(argv[1], "-d")) {
       int i;
 
       for(i = 0; i < 3; i++) {
@@ -28,46 +27,36 @@ int main(int argc, char** argv)
       }
 
       n = dataset_sizes[i];
+  } else {
+      fprintf(stderr, "Usagem: ./ludcmp -d [SIZE]\n");
+      return 1;
   }
 
+  /* Alocar arrays */
+  a = (float **) malloc(sizeof(float*) * n);
+  b = (float *) malloc(sizeof(float) * n);
+  x = (float *) malloc(sizeof(float) * n);
+  y = (float *) malloc(sizeof(float) * n);
 
-  /* Variable declaration/allocation. */
-  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, n, n, n, n);
-  POLYBENCH_1D_ARRAY_DECL(b, DATA_TYPE, n, n);
-  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, n, n);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, n, n);
-
+  for(int i = 0; i < n; i++)
+      a[i] = (float *) malloc(sizeof(float) * n);
 
   /* Initialize array(s). */
-  init_array (n,
-	      POLYBENCH_ARRAY(A),
-	      POLYBENCH_ARRAY(b),
-	      POLYBENCH_ARRAY(x),
-	      POLYBENCH_ARRAY(y));
+  init_array (n, a, b, x, y);
+  print_matrix(n, a);
 
   /* Start timer. */
   polybench_start_instruments;
 
   /* Run kernel. */
-  kernel_ludcmp (n,
-		 POLYBENCH_ARRAY(A),
-		 POLYBENCH_ARRAY(b),
-		 POLYBENCH_ARRAY(x),
-		 POLYBENCH_ARRAY(y));
+  kernel_ludcmp (n, a, b, x, y);
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  /* Prevent dead-code elimination. All live-out data must be printed
-     by the function call in argument. */
-  polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x)));
-
-  /* Be clean. */
-  POLYBENCH_FREE_ARRAY(A);
-  POLYBENCH_FREE_ARRAY(b);
-  POLYBENCH_FREE_ARRAY(x);
-  POLYBENCH_FREE_ARRAY(y);
+  print_matrix(n, a);
+  print_array(n, x);
 
   return 0;
 }
