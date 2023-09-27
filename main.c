@@ -7,28 +7,34 @@
 
 int main(int argc, char** argv)
 {
-  int n = 0; 
+  int t, n; 
   float **a, *b, *x, *y;
 
   // RANDOM SEED
   srand(0);
 
-  if (argc >= 3 && !strcmp(argv[1], "-d")) {
-      int i;
+  if (argc >= 5) {
+      if(!strcmp(argv[1], "-d")) {
+          int i;
 
-      for(i = 0; i < 3; i++) {
-         if(!strcmp(argv[2], dataset_labels[i]))
-             break;
-      }
+          for(i = 0; i < 3; i++) {
+             if(!strcmp(argv[2], dataset_labels[i]))
+                 break;
+          }
 
-      if (i >= 3) {
-            fprintf(stderr, "Erro: Tamanho inválido\n");
-            return 2;
-      }
+          if (i >= 3) {
+                fprintf(stderr, "Erro: Tamanho inválido\n");
+                return 2;
+          }
 
-      n = dataset_sizes[i];
+          n = dataset_sizes[i];
+    }
+
+    if(!strcmp(argv[3], "-t")) {
+        t = atoi(argv[4]); 
+    }
   } else {
-      fprintf(stderr, "Usagem: ./ludcmp -d [SIZE]\n");
+      fprintf(stderr, "Usagem: ./ludcmp -d [SIZE] -t [threads]\n");
       return 1;
   }
 
@@ -46,7 +52,7 @@ int main(int argc, char** argv)
   print_matrix(n, a);
 
   polybench_start_instruments;
-  ludcmp_diagonal (n, a, b, x, y);
+  ludcmp_threads (t, n, a, b, x, y);
   polybench_stop_instruments;
   polybench_print_instruments;
 
