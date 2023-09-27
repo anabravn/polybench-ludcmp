@@ -21,9 +21,9 @@ const char *dataset_labels[] = {
 
 const int dataset_sizes[] = {
     3,
-    100,
     2000,
-    4000
+    4000,
+    6000
 };
 
 
