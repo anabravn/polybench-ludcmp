@@ -45,16 +45,12 @@ int main(int argc, char** argv)
   init_array (n, a, b, x, y);
   print_matrix(n, a);
 
-  /* Start timer. */
   polybench_start_instruments;
-
-  /* Run kernel. */
-  kernel_ludcmp (n, a, b, x, y);
-
-  /* Stop and print timer. */
+  ludcmp_diagonal (n, a, b, x, y);
   polybench_stop_instruments;
   polybench_print_instruments;
 
+  
   print_matrix(n, a);
   print_array(n, x);
 

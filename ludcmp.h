@@ -33,11 +33,16 @@ void print_array(int n, float *x);
 void print_matrix(int n, float **a);
 	
 void init_array(int n,
-            float **A, float *b, float *x, float *y);
+            float **a, float *b, float *x, float *y);
 		 
 void kernel_ludcmp(int n,
-            float **A, float *b, float *x, float *y);
+            float **a, float *b, float *x, float *y);
 
+void ludcmp_diagonal(int n,
+            float **a, float *b, float *x, float *y);
+
+void ludcmp_threads(int t, int n,
+            float **a, float *b, float *x, float *y);
 
 
 #endif /* !_LUDCMP_H */
