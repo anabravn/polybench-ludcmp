@@ -68,8 +68,6 @@ void *ludcmp_aux(void *ptr) {
         int x = d < arg->n ? 0 : d - arg->n + 1;
         int y = d < arg->n ? d : arg->n - 1;
 
-        printf("%d %d\n", x, y);
-
         /* Itera por cada elemento da anti-diagonal d */
         for (i = x + arg->id; i <= y; i+= arg->t) {
             j = d - i;
