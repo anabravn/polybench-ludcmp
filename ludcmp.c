@@ -7,36 +7,38 @@
 #include "polybench.h"
 
 /* Array initialization. */
-void init_array (int n,
-         float **a, float *b, float *x, float *y)
+float **init_matrix (int n)
 {
-  int i, j;
+    int i, j;
+    float **a = (float **) malloc(sizeof(float*) * n);
 
-  for (i = 0; i < n; i++)
-    {
-      x[i] = 0;
-      y[i] = 0;
-      b[i] = (i+1)/n/2.0 + 4;
+    for (i = 0; i < n; i++) {
+        a[i] = (float *) malloc(sizeof(float) * n);
+
+        for (j = 0; j < n; j++)
+            a[i][j] = rand() % 100;
     }
 
-  for (i = 0; i < n; i++)
-    {
-      for (j = 0; j < n; j++)
-        a[i][j] = rand() % 100;
-    }
+    return a;
 }
 
+void free_matrix(int n, float **a) {
+    for(int i = 0; i < n; i++)
+        free(a[i]);
 
-void print_array(int n, float *x)
+    free(a);
+}
+
+void print_array(int n, float *a)
 {
-  int i;
+    int i, j;
 
-  for (i = 0; i < n; i++) {
-    printf("%0.4f ", x[i]);
-  }
+    for (i = 0; i < n; i++)
+        printf("%0.4f ", a[i]);
 
-  printf("\n");
+    printf("\n");
 }
+
 
 void print_matrix(int n, float **a)
 {
@@ -95,8 +97,7 @@ void *ludcmp_aux(void *ptr) {
     }
 }
 
-void ludcmp_threads(int t, int n,
-         float **a, float *b, float *x, float *y)
+void ludcmp_threads(int t, int n, float **a)
 {
     pthread_t *id = (pthread_t*) malloc(sizeof(pthread_t) * t);
     arg_t *argv = (arg_t*) malloc(sizeof(arg_t) * t);
@@ -119,8 +120,7 @@ void ludcmp_threads(int t, int n,
     }
 }
 
-void ludcmp_diagonal(int n,
-         float **a, float *b, float *x, float *y)
+void ludcmp_diagonal(int n, float **a)
 {
     int i, j, k;
     float w;
@@ -153,24 +153,9 @@ void ludcmp_diagonal(int n,
             }
         }
     }
-
-    for (i = 0; i < n; i++) {
-    w = b[i];
-    for (j = 0; j < i; j++)
-    w -= a[i][j] * y[j];
-    y[i] = w;
-    }
-
-    for (i = n-1; i >=0; i--) {
-    w = y[i];
-    for (j = i+1; j < n; j++)
-    w -= a[i][j] * x[j];
-    x[i] = w / a[i][i];
-    }
 }
 
-void kernel_ludcmp(int n,
-         float **a, float *b, float *x, float *y)
+void kernel_ludcmp(int n, float **a)
 {
   int i, j, k;
   float w;
@@ -190,19 +175,5 @@ void kernel_ludcmp(int n,
        }
        a[i][j] = w;
     }
-  }
-
-  for (i = 0; i < n; i++) {
-     w = b[i];
-     for (j = 0; j < i; j++)
-        w -= a[i][j] * y[j];
-     y[i] = w;
-  }
-
-   for (i = n-1; i >=0; i--) {
-     w = y[i];
-     for (j = i+1; j < n; j++)
-        w -= a[i][j] * x[j];
-     x[i] = w / a[i][i];
   }
 }

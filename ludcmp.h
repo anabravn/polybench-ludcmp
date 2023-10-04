@@ -31,18 +31,12 @@ const int dataset_sizes[] = {
 
 void print_array(int n, float *x);
 void print_matrix(int n, float **a);
-	
-void init_array(int n,
-            float **a, float *b, float *x, float *y);
+
+float **init_matrix(int n);
+void free_matrix(int n, float **a); 
 		 
-void kernel_ludcmp(int n,
-            float **a, float *b, float *x, float *y);
-
-void ludcmp_diagonal(int n,
-            float **a, float *b, float *x, float *y);
-
-void ludcmp_threads(int t, int n,
-            float **a, float *b, float *x, float *y);
-
+void kernel_ludcmp(int n, float **a);
+void ludcmp_diagonal(int n, float **a);
+void ludcmp_threads(int t, int n, float **a);
 
 #endif /* !_LUDCMP_H */

@@ -8,7 +8,7 @@
 int main(int argc, char** argv)
 {
   int t, n, seq; 
-  float **a, *b, *x, *y;
+  float **a;
 
   // RANDOM SEED
   srand(0);
@@ -41,24 +41,14 @@ int main(int argc, char** argv)
       return 1;
   }
 
-  /* Alocar arrays */
-  a = (float **) malloc(sizeof(float*) * n);
-  b = (float *) malloc(sizeof(float) * n);
-  x = (float *) malloc(sizeof(float) * n);
-  y = (float *) malloc(sizeof(float) * n);
-
-  for(int i = 0; i < n; i++)
-      a[i] = (float *) malloc(sizeof(float) * n);
-
-  /* Initialize array(s). */
-  init_array (n, a, b, x, y);
+  a = init_matrix(n); 
 
   polybench_start_instruments;
 
   if (!seq)
-      ludcmp_threads (t, n, a, b, x, y);
+      ludcmp_threads (t, n, a);
   else
-      kernel_ludcmp (n, a, b, x, y);
+      kernel_ludcmp (n, a);
 
   polybench_stop_instruments;
   polybench_print_instruments;
