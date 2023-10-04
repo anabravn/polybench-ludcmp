@@ -36,7 +36,8 @@ int main(int argc, char **argv) {
 
             if (process_rank == 0) {
                 printf("0 -> enviando a[%d][%d] para %d\n", i, j, dest);
-                MPI_Send(&a[i][j], 1, MPI_FLOAT, dest, MPI_ANY_TAG, MPI_COMM_WORLD);
+                MPI_Send(&a[i][j], 1, MPI_FLOAT, dest, i, MPI_COMM_WORLD);
+
             } else if (process_rank == dest) {
                 float w;
                 

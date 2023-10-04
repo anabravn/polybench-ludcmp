@@ -54,71 +54,71 @@ void print_matrix(int n, float **a)
   printf("\n");
 }
 
-typedef struct {
-    float **a;
-    int id, n, t;
-    pthread_barrier_t *barrier;
-} arg_t;
+// typedef struct {
+//     float **a;
+//     int id, n, t;
+//     pthread_barrier_t *barrier;
+// } arg_t;
 
-void *ludcmp_aux(void *ptr) {
-    arg_t *arg = (arg_t *) ptr;
-    int d, i, j, k;
-    float w;
+// void *ludcmp_aux(void *ptr) {
+//     arg_t *arg = (arg_t *) ptr;
+//     int d, i, j, k;
+//     float w;
 
-     /* Itera pelo índice da anti-diagonal */
-    for (d = 0; d < (2 * arg->n) - 1; d++) {
-        int x = d < arg->n ? 0 : d - arg->n + 1;
-        int y = d < arg->n ? d : arg->n - 1;
+//      /* Itera pelo índice da anti-diagonal */
+//     for (d = 0; d < (2 * arg->n) - 1; d++) {
+//         int x = d < arg->n ? 0 : d - arg->n + 1;
+//         int y = d < arg->n ? d : arg->n - 1;
 
-        /* Itera por cada elemento da anti-diagonal d */
-        for (i = x + arg->id; i <= y; i+= arg->t) {
-            j = d - i;
+//         /* Itera por cada elemento da anti-diagonal d */
+//         for (i = x + arg->id; i <= y; i+= arg->t) {
+//             j = d - i;
 
-            /* Se a[i][j] pertence a matriz L */
-            if(i > j) {
-                w = arg->a[i][j];
-                for (k = 0; k < j; k++) {
-                    w -= arg->a[i][k] * arg->a[k][j];
-                }
-                arg->a[i][j] = w / arg->a[j][j];
-            }
+//             /* Se a[i][j] pertence a matriz L */
+//             if(i > j) {
+//                 w = arg->a[i][j];
+//                 for (k = 0; k < j; k++) {
+//                     w -= arg->a[i][k] * arg->a[k][j];
+//                 }
+//                 arg->a[i][j] = w / arg->a[j][j];
+//             }
 
-            /* Se a[i][j] pertence a matriz U */
-            if (j >= i) {
-                w = arg->a[i][j];
-                for (k = 0; k < i; k++) {
-                    w -= arg->a[i][k] * arg->a[k][j];
-                }
-                arg->a[i][j] = w;
-            }
-        }
+//             /* Se a[i][j] pertence a matriz U */
+//             if (j >= i) {
+//                 w = arg->a[i][j];
+//                 for (k = 0; k < i; k++) {
+//                     w -= arg->a[i][k] * arg->a[k][j];
+//                 }
+//                 arg->a[i][j] = w;
+//             }
+//         }
 
-        pthread_barrier_wait(arg->barrier);
-    }
-}
+//         pthread_barrier_wait(arg->barrier);
+//     }
+// }
 
-void ludcmp_threads(int t, int n, float **a)
-{
-    pthread_t *id = (pthread_t*) malloc(sizeof(pthread_t) * t);
-    arg_t *argv = (arg_t*) malloc(sizeof(arg_t) * t);
-    pthread_barrier_t* barrier = (pthread_barrier_t*) malloc(sizeof(pthread_barrier_t));
-    int i;
+// void ludcmp_threads(int t, int n, float **a)
+// {
+//     pthread_t *id = (pthread_t*) malloc(sizeof(pthread_t) * t);
+//     arg_t *argv = (arg_t*) malloc(sizeof(arg_t) * t);
+//     pthread_barrier_t* barrier = (pthread_barrier_t*) malloc(sizeof(pthread_barrier_t));
+//     int i;
 
-    pthread_barrier_init(barrier, NULL, t);
+//     pthread_barrier_init(barrier, NULL, t);
 
-    for(i = 0; i < t; i++) {
-        argv[i].id = i;
-        argv[i].a = a;
-        argv[i].t = t;
-        argv[i].n = n;
-        argv[i].barrier = barrier;
-        pthread_create((&id[i]), NULL, ludcmp_aux, (void *) (&argv[i]));
-    }
+//     for(i = 0; i < t; i++) {
+//         argv[i].id = i;
+//         argv[i].a = a;
+//         argv[i].t = t;
+//         argv[i].n = n;
+//         argv[i].barrier = barrier;
+//         pthread_create((&id[i]), NULL, ludcmp_aux, (void *) (&argv[i]));
+//     }
 
-    for(i = 0; i < t; i++) {
-        pthread_join((id[i]), NULL);
-    }
-}
+//     for(i = 0; i < t; i++) {
+//         pthread_join((id[i]), NULL);
+//     }
+// }
 
 void ludcmp_diagonal(int n, float **a)
 {
