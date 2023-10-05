@@ -50,6 +50,9 @@ int main(int argc, char** argv)
   else
       kernel_ludcmp (n, a);
 
+  if (n == dataset_sizes[0]) 
+      print_matrix(n, a);
+
   polybench_stop_instruments;
   polybench_print_instruments;
 
