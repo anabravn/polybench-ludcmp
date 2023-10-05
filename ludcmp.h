@@ -33,6 +33,7 @@ void print_array(int n, float *x);
 void print_matrix(int n, float **a);
 
 float **init_matrix(int n);
+float **alloc_matrix (int n);
 void free_matrix(int n, float **a); 
 		 
 void kernel_ludcmp(int n, float **a);

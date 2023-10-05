@@ -16,11 +16,12 @@ int main(int argc, char **argv) {
 
     MPI_Comm_split(MPI_COMM_WORLD, process_rank > 0, 
                    process_rank, &MPI_COMM_WORKERS);
-
    
-    a = init_matrix(n);
     if (process_rank == 0) {
+        a = init_matrix(n);
         print_matrix(n, a);
+    } else {
+        a = alloc_matrix(n);
     }
 
     for (int d = 0; d < (2 * n) - 1; d++) { 
@@ -38,33 +39,38 @@ int main(int argc, char **argv) {
             }
 
             if (process_rank == dest) {
-                MPI_Recv(&a[i][j], 1, MPI_FLOAT, 0, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                printf("%d -> receiving a[%d][%d]\n", process_rank, i, j);
+                int k;
+                float w;
 
-                /*
+                MPI_Recv(&a[i][j], 1, MPI_FLOAT, 0, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                printf("%d -> receiving a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
+                
                 if(i > j) {
-                w = a[i][j];
-                for (k = 0; k < j; k++) {
-                    w -= a[i][k] * a[k][j];
-                }
-                a[i][j] = w / a[j][j];
+                    w = a[i][j];
+                    for (k = 0; k < j; k++) {
+                        w -= a[i][k] * a[k][j];
+                    }
+                    a[i][j] = w / a[j][j];
                 }
 
                 if (j >= i) {
-                w = a[i][j];
-                for (k = 0; k < i; k++) {
-                    w -= a[i][k] * a[k][j];
+                    w = a[i][j];
+                    for (k = 0; k < i; k++) {
+                        w -= a[i][k] * a[k][j];
+                    }
+                    a[i][j] = w;
                 }
-                a[i][j] = w;
-                }
-                */
+                
 
-                //MPI_Bcast(&a[i][j], 1, MPI_FLOAT, process_rank, MPI_COMM_WORLD);
-                printf("%d -> broadcasting result a[%d][%d]\n", process_rank, i, j);
+                MPI_Bcast(&a[i][j], 1, MPI_FLOAT, process_rank - 1, MPI_COMM_WORKERS);
+                printf("%d -> broadcasting result a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
 
             } else if (process_rank == 0) {
                 printf("0 -> sending a[%d][%d] to %d\n", i, j, dest);
                 MPI_Send(&a[i][j], 1, MPI_FLOAT, dest, i, MPI_COMM_WORLD);
+            } else {
+                MPI_Bcast(&a[i][j], 1, MPI_FLOAT, dest - 1, MPI_COMM_WORKERS);
+                printf("%d -> receiving result a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
             }
         }
        
@@ -72,9 +78,8 @@ int main(int argc, char **argv) {
         MPI_Barrier(MPI_COMM_WORKERS);
     }
 
-    if(process_rank == world_size - 1) {
+    if(process_rank == world_size - 1)
         print_matrix(n, a);
-    }
 
     MPI_Finalize();
     return 0;
