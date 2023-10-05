@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
     MPI_Comm MPI_COMM_WORKERS;
     float **a, *buffer;
     int process_rank, world_size;
-    int n = 3;
+    int n = 5;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -25,57 +25,63 @@ int main(int argc, char **argv) {
     }
 
     for (int d = 0; d < (2 * n) - 1; d++) { 
-        int x = d < n ? 0 : d - n + 1;
-        int y = d < n ? d : n - 1;
+        int start = d < n ? 0 : d - n + 1;
+        int end = d < n ? d : n - 1;
 
-        int m = (y - x) + 1;
-        int dest = 1;
+        int size = (end - start) + 1;
+        int size_per_proc = size/(world_size - 1);
+        int rem = size % (world_size-1);
+        float *buffer = (float *) malloc(sizeof(float) * size);
 
-        for (int i = x; i <= y; i++, dest++) {
-            int j = d - i;
-
-            if (dest >= world_size) {
-                dest = 1;
+        if (process_rank == 0) {
+            for (int i=start; i <= end; i++) {
+                int j = d - i;
+                buffer[i - start] = a[i][j];
             }
 
-            if (process_rank == dest) {
-                int k;
-                float w;
+            printf("0 -> sending ");
+            print_array(size, buffer);
 
-                MPI_Recv(&a[i][j], 1, MPI_FLOAT, 0, i, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                printf("%d -> receiving a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
-                
-                if(i > j) {
-                    w = a[i][j];
-                    for (k = 0; k < j; k++) {
-                        w -= a[i][k] * a[k][j];
-                    }
-                    a[i][j] = w / a[j][j];
-                }
+            for (int i=0; i < world_size-1; i++) {
+                int tmp = (i == world_size-2) ? (size_per_proc + rem) : size_per_proc;
 
-                if (j >= i) {
-                    w = a[i][j];
-                    for (k = 0; k < i; k++) {
-                        w -= a[i][k] * a[k][j];
-                    }
-                    a[i][j] = w;
-                }
-                
-
-                MPI_Bcast(&a[i][j], 1, MPI_FLOAT, process_rank - 1, MPI_COMM_WORKERS);
-                printf("%d -> broadcasting result a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
-
-            } else if (process_rank == 0) {
-                printf("0 -> sending a[%d][%d] to %d\n", i, j, dest);
-                MPI_Send(&a[i][j], 1, MPI_FLOAT, dest, i, MPI_COMM_WORLD);
-            } else {
-                MPI_Bcast(&a[i][j], 1, MPI_FLOAT, dest - 1, MPI_COMM_WORKERS);
-                printf("%d -> receiving result a[%d][%d] = %.2f\n", process_rank, i, j, a[i][j]);
+                printf("0 -> sending to %d -> ", i + 1);
+                MPI_Send(&buffer[i*size_per_proc], tmp, MPI_FLOAT, 
+                        i + 1, i, MPI_COMM_WORLD); 
+                print_array(tmp, &buffer[i*size_per_proc]);
             }
-        }
+       }
+
+       if (process_rank != 0) {
+           for (int i=0; i < world_size-1; i++) {
+               int tmp = (i == world_size-2) ? (size_per_proc + rem) : size_per_proc;
+
+               if(process_rank - 1 == i) {
+                    MPI_Recv(&buffer[i*size_per_proc], tmp, MPI_FLOAT, 
+                        0, MPI_ANY_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
+
+                    printf("%d -> received ", process_rank);
+                    print_array(tmp, &buffer[i*size_per_proc]);
+
+                    printf("%d -> broadcasting results ", process_rank);
+                } else {
+                    printf("%d -> receiving results from %d -> ", process_rank, i + 1);
+                }
+
+                MPI_Bcast(&buffer[i*size_per_proc], tmp, MPI_FLOAT, i, MPI_COMM_WORKERS);
+                print_array(tmp, &buffer[i*size_per_proc]);
+            }
+
+            printf("%d -> diagonal %d -> ", process_rank, d);
+            print_array(size, buffer);
+
+            for (int i=start; i <= end; i++) {
+                int j = d - i;
+                a[i][j] = buffer[i - start];
+            }
+         }
        
-        printf("%d -> at the barrier\n", process_rank);
-        MPI_Barrier(MPI_COMM_WORKERS);
+         MPI_Barrier(MPI_COMM_WORKERS);
     }
 
     if(process_rank == world_size - 1)

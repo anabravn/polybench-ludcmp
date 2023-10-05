@@ -41,7 +41,7 @@ void print_array(int n, float *a)
     int i;
 
     for (i = 0; i < n; i++)
-        printf("%0.4f ", a[i]);
+        printf("%0.2f ", a[i]);
 
     printf("\n");
 }
@@ -53,7 +53,7 @@ void print_matrix(int n, float **a)
 
   for (i = 0; i < n; i++) {
     for(j = 0; j < n; j++) 
-        printf("%0.4f ", a[i][j]);
+        printf("%0.2f ", a[i][j]);
 
     printf("\n");
   }
