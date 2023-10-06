@@ -8,4 +8,4 @@ ludcmp-mpi: ludcmp.c ludcmp.h ludcmp-mpi.c
 mpirun: ludcmp-mpi
 	# Run nodes on local network
 	mpirun --mca btl_tcp_if_include lo \
-		--use-hwthread-cpus ./ludcmp-mpi
+		--use-hwthread-cpus ./ludcmp-mpi -d MINI

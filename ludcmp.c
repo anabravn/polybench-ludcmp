@@ -7,7 +7,7 @@
 #include "polybench.h"
 
 float **alloc_matrix (int n) {
-    int i, j;
+    int i;
     float **a = (float **) malloc(sizeof(float*) * n);
 
     for (i = 0; i < n; i++)
@@ -102,6 +102,8 @@ void *ludcmp_aux(void *ptr) {
 
          pthread_barrier_wait(arg->barrier);
      }
+
+     return NULL;
  }
 
 void ludcmp_threads(int t, int n, float **a)

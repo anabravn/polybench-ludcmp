@@ -53,6 +53,8 @@ int main(int argc, char** argv)
   if (n == dataset_sizes[0]) 
       print_matrix(n, a);
 
+  free_matrix(n, a);
+
   polybench_stop_instruments;
   polybench_print_instruments;
 
