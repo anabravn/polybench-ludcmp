@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv) {
     MPI_Comm MPI_COMM_WORKERS;
-    float **a, *buffer;
+    float **a, dt;
     int process_rank, world_size;
     int n;
 
@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
     } else {
         a = alloc_matrix(n);
     }
+ 
+    dt = MPI_Wtime();
 
     for (int d = 0; d < (2 * n) - 1; d++) { 
         int start = d < n ? 0 : d - n + 1;
@@ -105,12 +107,16 @@ int main(int argc, char **argv) {
                 }
              }
         }
-       
-         MPI_Barrier(MPI_COMM_WORKERS);
     }
+
+    dt = MPI_Wtime() - dt;
 
     if(process_rank == world_size - 1 && n <= dataset_sizes[0])
         print_matrix(n, a);
+
+    if (process_rank == world_size - 1)
+        printf("%f\n", dt);
+
 
     MPI_Finalize();
     return 0;
